@@ -139,9 +139,12 @@ def find_existing_keytags(f):
 
 def keyfinder_scan(f):
     print('Running keyfinder on '+f)
-    key_obj = keyfinder.key(f)
-    print('Detected key '+key_obj.standard())
-    return key_obj.standard()
+    try:
+        key_obj = keyfinder.key(f)
+        print('Detected key '+key_obj.standard())
+        return key_obj.standard()
+    except Exception as e:
+        return e
 
 def return_playlistkey(k):
     for playlistkey, keys in key_dict.items():
@@ -169,12 +172,20 @@ def write_key(f,k):
         id3.add(TKEY(encoding=3, text=k))
         id3.add(TKE(encoding=3, text=k))
         id3.add(TXXX(encoding=3, text=k, desc='initialkey'))
-        id3.add(TXXX(encoding=3, text=k, desc='KEY'))
+        id3.add(TXXX(encoding=3, text=k, desc='key'))
+        #remove any extra id3 tags that don't meet conventions.
+        tags_to_remove = ['TXXX:INITIALKEY','TXXX:KEY']
+        for t in tags_to_remove:
+            try:
+                id3.pop(t)
+            except:
+                continue
         return id3
+    '''
     elif f[-3:] == 'wav':
         id3 = WAVE(f)
         id3.add(TKEY(encoding=3, text=k))
-
+    '''
 
 #write either camelot or playlist (t) key (k) to file or tag object (f)
 def write_alt_key(f,k,t):
@@ -285,11 +296,17 @@ for file in track_list:
         backup(file)
 
     if keyscan_option == 'a':
-    
+        
         tkey = keyfinder_scan(file)
-        print('Writing detected key tag '+tkey+' for ' + file)
-        #file here
-        tags_obj = write_key(file,tkey)
+        #keyfinder currently does not return a python exception if a 'Segmentation fault (core dump)' is encountered, which can happen with some audio files. The following error handling is still implemented for when this can be handled by python
+        if len(tkey) > 3:
+            print(format_error(tkey))
+            error_dict[file] = tkey
+            continue
+        else:
+            print('Writing detected key tag '+tkey+' for ' + file)
+            #file here
+            tags_obj = write_key(file,tkey)
         
     elif keyscan_option == 'b':
         
@@ -301,7 +318,11 @@ for file in track_list:
             keyscan_run = input(format_val(file) + format_question(' already contains key tag ') + format_val(tkey) + format_question(', do you want to run keyfinder anyway? ([y]/[n])\n'))
             if keyscan_run == 'y' or not keyscan_run:
                 key = keyfinder_scan(file)
-                if tkey != key:
+                if len(key) > 3:
+                    print(format_error(key))
+                    error_dict[file] = key
+                    continue
+                elif tkey != key:
                     while True:
                         key_overwrite = input(format_val(file) + format_question(' already contains key tag ') + format_val(tkey) + format_question(' but keyfinder detected ') + format_val(key) + format_question('. Overwrite? ([y]/[n])'))
                         if key_overwrite in ['y','n','']:
@@ -329,10 +350,15 @@ for file in track_list:
         elif tkey == False:
             print('Did not detect a key tag for '+file)
             key = keyfinder_scan(file)
-            print(format_conf('Writing key tag ')+format_val(key)+format_conf(' to ') + format_val(file))
-            #file here
-            tags_obj = write_key(file,tkey)
-            tkey = key
+            if len(key) > 3:
+                print(format_error(key))
+                error_dict[file] = key
+                continue
+            else:
+                print(format_conf('Writing key tag ')+format_val(key)+format_conf(' to ') + format_val(file))
+                #file here
+                tags_obj = write_key(file,key)
+                tkey = key
             
     elif keyscan_option == 'c' or not keyscan_option:
     
@@ -344,9 +370,14 @@ for file in track_list:
         elif tkey == False:
             print('Did not detect a key tag for '+file)
             key = keyfinder_scan(file)
-            print(format_conf('Writing key tag ')+format_val(key)+format_conf(' to ') + format_val(file))
-            tags_obj = write_key(file,key)
-            tkey = key
+            if len(key) > 3:
+                print(format_error(key))
+                error_dict[file] = key
+                continue
+            else:
+                print(format_conf('Writing key tag ')+format_val(key)+format_conf(' to ') + format_val(file))
+                tags_obj = write_key(file,key)
+                tkey = key
             
             #id3.add(COMM(encoding=3, text='key tag '+key.standard()+' written using libKeyFinder.'))     
     #elif keyscan_option == 'd':
@@ -364,7 +395,12 @@ for file in track_list:
             elif tkey == False:
                 print('Camelot key could not be determined because no key is tagged in file '+file)
                 tkey = keyfinder_scan(file)
-                ckey = return_camelotkey(tkey)
+                if len(tkey) > 3:
+                    print(format_error(tkey))
+                    error_dict[file] = tkey
+                    continue
+                else:
+                    ckey = return_camelotkey(tkey)
         print(format_conf('Writing camelot key tag ')+format_val(ckey)+format_conf(' to ') + format_val(file))
         
         tags_obj = write_alt_key(tags_obj,ckey,'camelotkey') 
@@ -382,7 +418,12 @@ for file in track_list:
             elif tkey == False:
                 print('Playlist key could not be determined because no key is tagged in file '+file)
                 tkey = keyfinder_scan(file)
-                pkey = return_camelotkey(tkey)
+                if len(tkey) > 3:
+                    print(format_error(tkey))
+                    error_dict[file] = tkey
+                    continue
+                else:
+                    pkey = return_camelotkey(tkey)
         print(format_conf('Writing playlist key tag ')+format_val(pkey)+format_conf(' to ') + format_val(file))
         
         tags_obj = write_alt_key(tags_obj,pkey,'playlistkey')
