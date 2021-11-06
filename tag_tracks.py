@@ -81,6 +81,7 @@ def backup(file):
     shutil.copy(file, './'+backupdir)
     print(format_conf('Created backup for ')+format_val(file)+format_conf(' in ./')+format_conf(backupdir))
 
+#function for converting wav and m4a and then deleting original
 def convert_media(f):
     if f.split('.')[-1] == 'wav':
         acodec = 'flac'
@@ -95,20 +96,37 @@ def convert_media(f):
     try:
         print(format_conf('Converting ')+format_val(f)+format_conf(' to ')+format_val(ext)+format_conf(' for compatibility'))
         i = ffmpeg.input(f)
+        filename = '.'.join(f.split('.')[:-1])
         if f.split('.')[-1] == 'wav':
-            output = ffmpeg.output(i,'.'.join(f.split('.')[:-1])+ext,acodec=acodec)
+            output = ffmpeg.output(i,filename+ext,acodec=acodec)
         elif f.split('.')[-1] == 'm4a':
-            output = ffmpeg.output(i,'.'.join(f.split('.')[:-1])+ext,acodec=acodec, ab=ab)
-            
+            output = ffmpeg.output(i,filename+ext,acodec=acodec, ab=ab)
+        output.run()
+    except Exception as e:
+        print(format_error(e))
+        print('ffmpeg encountered an error. Skipping conversion for '+f)
+        return
+    else:
+        print(f+' converted successfully, deleting original.')
+        os.remove(f)
+
+#function for quick conversion of mp3 to wav for sole purpose of analyzing bpm
+def convert_mp3_to_wav(f):
+    filename = '.'.join(f.split('.')[:-1])
+    ext = '.wav'
+    print(format_conf('Converting ')+format_val(f)+format_conf(' to ')+format_val(ext)+format_conf(' to analyze BPM.'))
+    i = ffmpeg.input(f)
+    try:
+        output = ffmpeg.output(i,filename+ext)
         output.run()
     except Exception as e:
         print(format_error(e))
         print('ffmpeg encountered an error. Skipping conversion for '+file)
-        return
+        return False,e
     else:
-        print(file+' converted successfully, deleting original.')
-        os.remove(file)
-    
+        print(f+' converted successfully')
+        return filename+ext
+        
 #function searches all tags in file that could already contain a key
 def find_existing_keytags(f):
     
@@ -146,6 +164,33 @@ def keyfinder_scan(f):
     except Exception as e:
         return e
 
+#do not use outside this script since function depends on other funtions here if f is not wav
+#this function converts to wav (if not wav) and analyzes for bpm and returns a bpm int, it also deletes the temporary wav that was created if it had to perform conversion
+def analyze_bpm(f):
+    if f[-3:] != 'wav':
+        converted = convert_mp3_to_wav(file)
+        if isinstance(converted,tuple):
+            if  converted[0] == False:
+                print('Cannot analyze BPM for '+file)
+                print('Skipping')
+                error_dict[f] = converted[1]
+                return False
+        else:
+            print('converted to '+converted)
+    else:
+        pass
+    
+    from extract_bpm import get_file_bpm
+    try:
+        bpm = get_file_bpm(converted)
+        bpm = str(round(bpm))
+    except Exception as e:
+        print(format_error(e))
+        print('bpm analysis encountered an error. Skipping analysis for '+f)
+        return False
+    os.remove(converted)
+    return bpm
+    
 def return_playlistkey(k):
     for playlistkey, keys in key_dict.items():
         if k in keys[0]:
@@ -200,14 +245,26 @@ def write_alt_key(f,k,t):
         f[t] = k
         return f
 
+def write_bpm(f,k,t):
+    if isinstance(f,ID3):
+        #print('tagging mp3')
+        f.add(TBPM(encoding=3, text=k))
+        return f
+    #elif f is flac tag object
+    elif isinstance(f,FLAC):
+        #print('tagging flac')
+        #print(f, ' ',k, ' ',t)
+        f[t] = k
+        return f
+
 #-----
 
 #setup interview
 
 while True:
-    print(format_question('Choose how to proceed with ')+format_underline('melodic key tags'))
-    keyscan_option = input(format_question('[a] Scan all and overwrite existing key tags\n[b] Scan all and manually approve each overwrite\n[c] Only scan and tag files with missing key tags (default)\n'))
-    if keyscan_option in ['a','b','c','']:
+    print(format_question('Select how you wish to use this tool:\n'))
+    keyscan_option = input(format_question('[a] Scan all and overwrite existing key tags\n[b] Scan all and manually approve each overwrite\n[c] Only scan and tag files with missing key tags (default)\n[d] Skip\n'))
+    if keyscan_option in ['a','b','c','d','']:
         break
 while True:
     tag_camelot = input(format_question('Apply/Overwrite ')+format_underline('Camelot tags')+format_question(' to files? ([y]/[n])\n'))
@@ -217,7 +274,16 @@ while True:
     tag_playlist = input(format_question('Apply/Overwrite ')+format_underline('Playlist tags')+format_question(' to files? (these are custom-defined codes that - when used to order songs in ascending or descending order - minimize tonal dissonance between songs during playback) ([y]/[n])\n'))
     if tag_playlist in ['y','','n']:
         break
-
+while True:
+    analyze_bpm_option = input(format_question('Analyze and write/overwrite ')+format_underline('BPM')+format_question('? ([y]/[n])\n'))
+    if analyze_bpm_option in ['y','','n']:
+        break
+'''
+while True:
+    rename_files = input(format_question('Rename files according to the following format? ')+format_underline('%camelotkey%_%bpm%_%artist%_%title%'))
+    if rename_files in ['y','','n']:
+        break
+'''
 
 backed_up_list = []
 
@@ -282,10 +348,10 @@ for file in track_list:
     
     #catch any missing metadata headers
     if file[-4:] == 'flac':
-        pass
+        tags_obj = FLAC(file)
     elif file[-3:] == 'mp3':
         try:
-            error_check = ID3(file)
+            tags_obj = ID3(file)
         except Exception as e:
             print(format_error(e))
             error_dict[file] = e
@@ -382,7 +448,8 @@ for file in track_list:
             #id3.add(COMM(encoding=3, text='key tag '+key.standard()+' written using libKeyFinder.'))     
     #elif keyscan_option == 'd':
     #    print('No keys were scanned for '+file)
-    
+    elif keyscan_option == 'd':
+        pass
     
     if tag_camelot == 'y' or not tag_camelot:
         try:
@@ -430,7 +497,18 @@ for file in track_list:
     else:
         pass
     
-    tags_obj.save()
+    if analyze_bpm_option == 'y' or not analyze_bpm_option:
+        #aubio cannot analyze bpm if file not in wav format
+        bpm = analyze_bpm(file)
+        if bpm != False:
+            print(format_conf('Writing BPM ')+format_val(bpm)+format_conf(' to ')+format_val(file))
+            tags_obj = write_bpm(tags_obj,bpm,'bpm')
+    try:
+        tags_obj.save()
+    except Exception as e:
+        print(format_error(e))
+        error_dict[file] = e
+        continue
     shutil.copy(file, './'+destdir)
     os.remove(file)
 else:
