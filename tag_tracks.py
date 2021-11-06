@@ -10,7 +10,7 @@ from mutagen.id3 import TXXX
 from mutagen.id3 import TBPM
 from mutagen.id3 import COMM
 from mutagen.flac import FLAC
-
+from extract_bpm import get_file_bpm
 
 #colors for command line tool readability
 
@@ -179,8 +179,6 @@ def analyze_bpm(f):
             print('converted to '+converted)
     else:
         pass
-    
-    from extract_bpm import get_file_bpm
     try:
         bpm = get_file_bpm(converted)
         bpm = str(round(bpm))
