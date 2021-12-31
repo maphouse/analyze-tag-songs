@@ -1,6 +1,6 @@
 ## Overview
 
-This script allows you to quickly scan your audio files by musical key and BPM and tag them accordingly. The script will back up your files to a backup folder and output new tagged versions to an output folder. You can choose to batch overwrite any existing tags in these files, or proceed on a case by case basis. The script was created to provide a semi-automated to automated solution for preparing tracks for digital DJ mixes.
+This command line tool allows you to scan your audio files by musical key and BPM and tag them accordingly. The script will back up your files to a backup folder and output new tagged versions to an output folder. You can choose to batch overwrite any existing tags in these files, or proceed on a case by case basis. The script was created to provide a semi-automated to automated solution for preparing tracks for digital DJ mixes.
 
 ## Requirements
 
