@@ -1,6 +1,8 @@
 ## Overview
 
-This command line tool allows you to scan your audio files by musical key and BPM and tag them accordingly. The script will back up your files to a backup folder and output new tagged versions to an output folder. You can choose to batch overwrite any existing tags in these files, or proceed on a case by case basis. The script was created to provide a semi-automated to automated solution for preparing tracks for digital DJ mixes.
+This command line tool scans audio files by musical key and BPM and tags them accordingly. The script was created to provide a semi-automated to automated solution for preparing tracks for digital DJ mixes.
+
+The script will back up your files to a backup folder and output new tagged versions to an output folder. You can choose to batch overwrite any existing tags in these files, or proceed on a case by case basis.
 
 ## Requirements
 
@@ -13,7 +15,7 @@ see `requirements.txt` for details
 
 ## Instructions
 
-to run the tool, simply have the required packages installed and have the music files you want to tag located in the same directory as `tag_tracks.py`. Then simply run the script (**`python tag_tracks.py`**)
+to run the tool, simply have the required packages installed and have the music files you want to tag located in the same directory as `tag_tracks.py`. Then run the script (**`python tag_tracks.py`**)
 
 ## Possible improvements
 
