@@ -24,34 +24,46 @@ class bcolors:
     ENDC = '\033[0m'
     UNDERLINE = '\033[4m'
 
-#'playlist key':[['theoretical key options'...],'camelot key']
+#'playlist key':[['theoretical key options'...],'camelot key',base frequency]
+#frequency of notes based on https://pages.mtu.edu/~suits/notefreqs.html
 
 key_dict = {
-    '1':[['C'],'8B'],
-    '2':[['Am'],'8A'],
-    '3':[['Em'],'9A'],
-    '4':[['G'],'9B'],
-    '5':[['D'],'10B'],
-    '6':[['Bm'],'10A'],
-    '7':[['F#m','Gbm'],'11A'],
-    '8':[['A'],'11B'],
-    '9':[['E'],'12B'],
-    '10':[['Dbm'],'12A'],
-    '11':[['Abm'],'1A'],
-    '12':[['B'],'1B'],
-    '13':[['F#','Gb'],'2B'],
-    '14':[['Ebm'],'2A'],
-    '15':[['Bbm'],'3A'],
-    '16':[['Db','C#','Dbm'],'3B'],
-    '17':[['Ab','G#'],'4B'],
-    '18':[['Fm'],'4A'],
-    '19':[['Cm'],'5A'],
-    '20':[['Eb','D#'],'5B'],
-    '21':[['Bb','A#'],'6B'],
-    '22':[['Gm'],'6A'],
-    '23':[['Dm'],'7A'],
-    '24':[['F'],'7B']
+    '1':[['C'],'8B',[16.35,32.70,65.41,130.81,261.63,523.25,1046.50,2093.00,4186.01]],
+    '2':[['Am'],'8A',[27.50,55.00,110.00,220.00,440.00,880.00,1760.00,3520.00,7040.00]],
+    '3':[['Em'],'9A',[20.60,41.20,82.41,164.81,329.63,659.25,1318.51,2637.02,5274.04]],
+    '4':[['G'],'9B',[24.50,49.00,98.00,196.00,392.00,783.99,1567.98,3135.96,6271.93]],
+    '5':[['D'],'10B',[18.35,36.71,73.42,146.83,293.66,587.33,1174.66,2349.32,4698.63]],
+    '6':[['Bm'],'10A',[30.87,61.74,123.47,246.94,493.88,987.77,1975.53,3951.07,7902.13]],
+    '7':[['F#m','Gbm'],'11A',[23.12,46.25,92.50,185.00,369.99,739.99,1479.98,2959.96,5919.91]],
+    '8':[['A'],'11B',[27.50,55.00,110.00,220.00,440.00,880.00,1760.00,3520.00,7040.00]],
+    '9':[['E'],'12B',[20.60,41.20,82.41,164.81,329.63,659.25,1318.51,2637.02,5274.04]],
+    '10':[['Dbm'],'12A',[17.32,34.65,69.30,138.59,277.18,554.37,1108.73,2217.46,4434.92]],
+    '11':[['Abm'],'1A',[25.96,51.91,103.83,207.65,415.30,830.61,1661.22,3322.44,6644.88]],
+    '12':[['B'],'1B',[30.87,61.74,123.47,246.94,493.88,987.77,1975.53,3951.07,7902.13]],
+    '13':[['F#','Gb'],'2B',[23.12,46.25,92.50,185.00,369.99,739.99,1479.98,2959.96,5919.91]],
+    '14':[['Ebm'],'2A',[19.45,38.89,77.78,155.56,311.13,622.25,1244.51,2489.02,4978.03]],
+    '15':[['Bbm'],'3A',[29.14,58.27,116.54,233.08,466.16,932.33,1864.66,3729.31,7458.62]],
+    '16':[['Db','C#'],'3B',[17.32,34.65,69.30,138.59,277.18,554.37,1108.73,2217.46,4434.92]],
+    '17':[['Ab','G#'],'4B',[25.96,51.91,103.83,207.65,415.30,830.61,1661.22,3322.44,6644.88]],
+    '18':[['Fm'],'4A',[21.83,43.65,87.31,174.61,349.23,698.46,1396.91,2793.83,5587.65]],
+    '19':[['Cm'],'5A',[16.35,32.70,65.41,130.81,261.63,523.25,1046.50,2093.00,4186.01]],
+    '20':[['Eb','D#'],'5B',[19.45,38.89,77.78,155.56,311.13,622.25,1244.51,2489.02,4978.03]],
+    '21':[['Bb','A#'],'6B',[29.14,58.27,116.54,233.08,466.16,932.33,1864.66,3729.31,7458.62]],
+    '22':[['Gm'],'6A',[24.50,49.00,98.00,196.00,392.00,783.99,1567.98,3135.96,6271.93]],
+    '23':[['Dm'],'7A',[18.35,36.71,73.42,146.83,293.66,587.33,1174.66,2349.32,4698.63]],
+    '24':[['F'],'7B',[21.83,43.65,87.31,174.61,349.23,698.46,1396.91,2793.83,5587.65]]
 }
+
+bpm_list = [115,122,127,135]
+
+freq_list = []
+
+def compile_freqs_to_list():
+    for x in key_dict.items():
+        freqs = [y for y in x[-1][-1]]
+        freq_list.extend(freqs)
+    #freq_list.sort()
+    #print(freq_list)
 
 def format_question(s):
     return f"{bcolors.WARNING}"+str(s)+f"{bcolors.ENDC}"
@@ -61,6 +73,9 @@ def format_val(s):
     
 def format_conf(s):
     return f"{bcolors.OKGREEN}"+str(s)+f"{bcolors.ENDC}"
+    
+def format_warning(s):
+    return f"{bcolors.OKCYAN}"+str(s)+f"{bcolors.ENDC}"
     
 def format_underline(s):
     return f"{bcolors.UNDERLINE}"+str(s)+f"{bcolors.ENDC}"
@@ -128,20 +143,23 @@ def convert_mp3_to_wav(f):
         return filename+ext
         
 #function searches all tags in file that could already contain a key
-def find_existing_keytags(f):
-    
-    if f[-4:] == 'flac':
-        tags_obj = FLAC(f)
+def find_existing_keytags(f: 'mutagen.ID3/FLAC'):
+    #print("SOLVE THIS f ",f)
+    #if f[-4:] == 'flac':
+    #    tags_obj = FLAC(f)
+    #    possible_keytags = ['key','initialkey']
+    #elif f[-3:] == 'mp3':
+    #    tags_obj = ID3(f)
+    #    possible_keytags = ['TKEY','TKE','TXXX:initialkey','TXXX:KEY']
+    if isinstance(f, FLAC):
         possible_keytags = ['key','initialkey']
-    elif f[-3:] == 'mp3':
-        tags_obj = ID3(f)
+    elif isinstance(f, ID3):
         possible_keytags = ['TKEY','TKE','TXXX:initialkey','TXXX:KEY']
-            
         
     while True:
         for i,keytag in enumerate(possible_keytags):
             try:
-                key = tags_obj[keytag][0]
+                key = f[keytag][0]
                 for val in key_dict.values():
                     if key in val[0]:
                         print('Found valid key '+key+' in tag \''+keytag+'\'')
@@ -164,6 +182,16 @@ def keyfinder_scan(f):
     except Exception as e:
         return e
 
+def return_bpm(f: 'mutagen') -> int:
+    #print(type(f))
+    if isinstance(f,ID3):
+        #print('f ',f)
+        #print('f bpm ',f['TBPM'][-1])
+        #print('f bpm type ',type(f['TBPM'][-1]))
+        return int(float(f['TBPM'][-1]))
+    elif isinstance(f,FLAC):
+        return int(float(f['bpm'][-1]))
+
 #do not use outside this script since function depends on other funtions here if f is not wav
 #this function converts to wav (if not wav) and analyzes for bpm and returns a bpm int, it also deletes the temporary wav that was created if it had to perform conversion
 def analyze_bpm(f):
@@ -185,6 +213,7 @@ def analyze_bpm(f):
     except Exception as e:
         print(format_error(e))
         print('bpm analysis encountered an error. Skipping analysis for '+f)
+        error_dict[f] = e
         return False
     os.remove(converted)
     return bpm
@@ -197,11 +226,46 @@ def return_playlistkey(k):
             pass
         
 def return_camelotkey(k):
-    for keycode, keys in key_dict.items():
+    for playlistkey, keys in key_dict.items():
         if k in keys[0]:
             return keys[1]
         else:
             pass
+
+def return_freq(k):
+    #print('k ',k)
+    for playlistkey, keys in key_dict.items():
+        if k in keys[0]:
+            #return 4th octave (C4)
+            #print('k ',k)
+            #print('k -1 4',keys[-1][4])
+            return keys[-1][4]
+        else:
+            pass
+
+#based on equation found here https://forum.ableton.com/viewtopic.php?t=179711#p1401670
+def calc_new_freq(original_bpm, original_freq, desired_bpm):
+    #print('original_bpm ',original_bpm)
+    #print('original_bpm ',type(original_bpm))
+    #print('original_freq ',original_freq)
+    #print('original_freq ',original_freq)
+    #print('desired_bpm ',desired_bpm)
+    #print('desired_bpm ',desired_bpm)
+    new_freq = desired_bpm/original_bpm*original_freq
+    #for x in key_dict.items():
+        #for 
+    return new_freq
+    
+def find_nearest_number(n, num_list = freq_list):
+    #function relies on existence of global var list freq_list
+    abs_differences = [abs(x - n) for x in num_list]
+    #print(abs_differences)
+    #print(min(abs_differences))
+    min_diff = min(abs_differences)
+    index_min = abs_differences.index(min_diff)
+    #index_min_diff = min(abs_differences, key = lambda i: abs_differences[int(i)-5])
+    print('nearest freq ',num_list[index_min])
+    return num_list[index_min]
 
 # conventions are based on https://exiftool.org/TagNames/ID3.html but many applications use TXXX:[descriptor] as well
 def write_key(f,k):
@@ -230,11 +294,25 @@ def write_key(f,k):
         id3.add(TKEY(encoding=3, text=k))
     '''
 
-#write either camelot or playlist (t) key (k) to file or tag object (f)
+#write any tag (t) to key (k) of file tag object (f)
 def write_alt_key(f,k,t):
     if isinstance(f,ID3):
-        #print('tagging mp3')
         f.add(TXXX(encoding=3, text=k, desc=t))
+        return f
+    elif isinstance(f,FLAC):
+        f[t] = k
+        return f
+
+def write_bpm(f,k,t):
+    if isinstance(f,ID3):
+        #print('tagging mp3')
+        f.add(TBPM(encoding=3, text=k))
+        tags_to_remove = ['TXXX:BPM']
+        for x in tags_to_remove:
+            try:
+                f.pop(x)
+            except:
+                continue
         return f
     #elif f is flac tag object
     elif isinstance(f,FLAC):
@@ -243,10 +321,16 @@ def write_alt_key(f,k,t):
         f[t] = k
         return f
 
-def write_bpm(f,k,t):
+def write_repitched_camelot_key(f,k,t):
     if isinstance(f,ID3):
         #print('tagging mp3')
         f.add(TBPM(encoding=3, text=k))
+        tags_to_remove = ['TXXX:BPM']
+        for x in tags_to_remove:
+            try:
+                f.pop(x)
+            except:
+                continue
         return f
     #elif f is flac tag object
     elif isinstance(f,FLAC):
@@ -260,7 +344,7 @@ def write_bpm(f,k,t):
 #setup interview
 
 while True:
-    print(format_question('Select how you wish to use this tool:\n'))
+    print(format_question('How do you wish to tag your files by ')+format_underline('musical key')+format_question('?\n'))
     keyscan_option = input(format_question('[a] Scan all and overwrite existing key tags\n[b] Scan all and manually approve each overwrite\n[c] Only scan and tag files with missing key tags (default)\n[d] Skip\n'))
     if keyscan_option in ['a','b','c','d','']:
         break
@@ -273,8 +357,12 @@ while True:
     if tag_playlist in ['y','','n']:
         break
 while True:
-    analyze_bpm_option = input(format_question('Analyze and write/overwrite ')+format_underline('BPM')+format_question('? ([y]/[n])\n'))
-    if analyze_bpm_option in ['y','','n']:
+    analyze_bpm_option = input(format_question('[a] Analyze and overwrite ')+format_underline('BPM')+format_question('? ([y]/[n])\n[b] Analyze and write only missing ')+format_underline('BPM')+format_question(' values? (default)\n[c] Skip.\n'))
+    if analyze_bpm_option in ['a','','c','b']:
+        break
+while True:
+    repitch_keys = input(format_question('Calculate and write/overwrite ')+format_underline('camelot key tags')+format_question(' for repitched track at following BPMs ')+format_val(bpm_list)+format_question('? ([y]/[n])\n'))
+    if repitch_keys in ['y','','n']:
         break
 '''
 while True:
@@ -337,8 +425,8 @@ else:
     pass
 
 track_list = glob('*.mp3') + glob('*.flac')
+tagged_count = 0
 error_dict = {}
-
 
 for file in track_list:
     
@@ -347,16 +435,18 @@ for file in track_list:
     #catch any missing metadata headers
     if file[-4:] == 'flac':
         tags_obj = FLAC(file)
+        tags_obj_compare = FLAC(file)
     elif file[-3:] == 'mp3':
         try:
             tags_obj = ID3(file)
+            tags_obj_compare = ID3(file)
         except Exception as e:
             print(format_error(e))
             error_dict[file] = e
             continue
     
     #make sure to not back up a file that has already been backed up during conversion
-    if '.'.join(file.split('.')[:-1]) not in backed_up_list:
+    if '.'.join(file.split('.')[:-1]) not in backed_up_list and ((keyscan_option != 'd') or (tag_camelot != 'n') or (tag_playlist != 'n') or (analyze_bpm_option != 'c') or (repitch_keys != 'n')):
         backup(file)
 
     if keyscan_option == 'a':
@@ -375,7 +465,7 @@ for file in track_list:
     elif keyscan_option == 'b':
         
         #file here
-        tkey = find_existing_keytags(file)
+        tkey = find_existing_keytags(tags_obj)
         
         #tkey = id3['TKEY'][0]
         if tkey != False:
@@ -425,8 +515,7 @@ for file in track_list:
                 tkey = key
             
     elif keyscan_option == 'c' or not keyscan_option:
-    
-        tkey = find_existing_keytags(file)
+        tkey = find_existing_keytags(tags_obj)
         if tkey != False:
             print(file + ' key already tagged with '+tkey+'.')
             #distribute detected key tag anyway to other key tags (to account for inconsistent reading of ID3 tags in media players)
@@ -447,14 +536,16 @@ for file in track_list:
     #elif keyscan_option == 'd':
     #    print('No keys were scanned for '+file)
     elif keyscan_option == 'd':
+        tkey = find_existing_keytags(tags_obj)
         pass
     
     if tag_camelot == 'y' or not tag_camelot:
         try:
+            #print('tkey ', tkey)
             ckey = return_camelotkey(tkey)
         #exception will only occur if [d] was selected in melodic key question
         except Exception as e:
-            tkey = find_existing_keytags(file)
+            tkey = find_existing_keytags(tags_obj)
             if tkey != False:
                 ckey = return_camelotkey(tkey)
             elif tkey == False:
@@ -477,7 +568,7 @@ for file in track_list:
         try:
             pkey = return_playlistkey(tkey)
         except Exception as e:
-            tkey = find_existing_keytags(file)
+            tkey = find_existing_keytags(tags_obj)
             if tkey != False:
                 pkey = return_playlistkey(tkey)
             elif tkey == False:
@@ -495,22 +586,84 @@ for file in track_list:
     else:
         pass
     
-    if analyze_bpm_option == 'y' or not analyze_bpm_option:
+    if analyze_bpm_option == 'a':
         #aubio cannot analyze bpm if file not in wav format
         bpm = analyze_bpm(file)
         if bpm != False:
             print(format_conf('Writing BPM ')+format_val(bpm)+format_conf(' to ')+format_val(file))
             tags_obj = write_bpm(tags_obj,bpm,'bpm')
+        else:
+            continue
+    
+    if analyze_bpm_option == 'b' or not analyze_bpm_option or (analyze_bpm_option == 'c' and repitch_keys != 'y'):
+        try:
+            bpm = return_bpm(tags_obj)
+        except e:
+            print('No BPM found on file')
+            bpm = analyze_bpm(file)
+            if bpm != False:
+                print(format_conf('Writing BPM ')+format_val(bpm)+format_conf(' to ')+format_val(file))
+                tags_obj = write_bpm(tags_obj,bpm,'bpm')
+            else:
+                pass
+    elif analyze_bpm_option == 'c' and repitch_keys != 'n':
+        #repitch_keys must be 'n' since if yet, bpm option
+        pass
+    
+    if repitch_keys == 'y' or not repitch_keys:
+        #print(tags_obj)
+        if len(freq_list) == 0:
+            compile_freqs_to_list()
+        
+        tkey = find_existing_keytags(tags_obj)
+        #print('tkey[-1] ',tkey[-1])
+        f = return_freq(tkey)
+        #print('f ',f)
+        bpm = return_bpm(tags_obj)
+        #print('bpm ',bpm)
+        #print('bpm type ',type(bpm))
+        for desired_bpm in bpm_list:
+            #calc_new_key(original_bpm, original_freq, desired_bpm)
+            new_freq = calc_new_freq(bpm, f, desired_bpm)
+            #print('newfreq ',new_freq)
+            
+            nearest_freq = find_nearest_number(new_freq)
+            
+            for k,v in key_dict.items():
+                if nearest_freq in v[-1]:
+                    #print('nearest_freq ',nearest_freq)
+                    #print('key_dict[k][1] ',key_dict[k][1])
+                    #print('nearest_freq ',nearest_freq)
+                    #print('index in key_dict ',k)
+                    #print('corresponding camelot ',key_dict[k][1])
+                    if (tkey[-1] == 'm') and (key_dict[k][1][-1] == 'A'):
+                        print('tkey[-1] ', tkey[-1])
+                        print('is minor ',key_dict[k][1])
+                        repitched_camelot_key = key_dict[k][1]
+                        break
+                    elif key_dict[k][1][-1] == 'B':
+                        print('is major ',key_dict[k][1])
+                        repitched_camelot_key = key_dict[k][1]
+                        break
+            print(format_conf('Writing camelot key ')+format_val(repitched_camelot_key)+format_conf(' at bpm ')+format_val(desired_bpm)+format_conf(' to ')+format_val(file))
+            tags_obj = write_alt_key(tags_obj,repitched_camelot_key,'repitchedcamelot_'+str(desired_bpm))
+            
     try:
-        tags_obj.save()
+        if tags_obj_compare != tags_obj:
+            tags_obj.save()
+            shutil.move(file, './'+destdir)
+            tagged_count+=1
+        else:
+            print(format_warning('No changes were made to ')+format_val(file))
+            pass
     except Exception as e:
         print(format_error(e))
         error_dict[file] = e
         continue
-    shutil.copy(file, './'+destdir)
-    os.remove(file)
+    
+
 else:
-    print(format_conf('\nTagging complete. Tagged files can be found in ./'+destdir+'.\n'))
+    print(format_conf('\nTagging complete. ')+format_val(tagged_count)+format_conf(' tagged files can be found in ./'+destdir+'.\n'))
     if len(error_dict) != 0:
         print(format_val(len(error_dict)) + format_conf(" files encountered errors and were not tagged:"))
         print(format_error(error_dict))
