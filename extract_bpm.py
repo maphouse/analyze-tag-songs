@@ -1,4 +1,4 @@
-#this script is copied from 
+#this script is copied from https://github.com/aubio/aubio/blob/master/python/demos/demo_bpm_extract.py
 from aubio import source, tempo
 from numpy import median, diff
 
