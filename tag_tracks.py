@@ -595,7 +595,7 @@ for file in track_list:
         else:
             continue
     
-    if analyze_bpm_option == 'b' or not analyze_bpm_option or (analyze_bpm_option == 'c' and repitch_keys != 'y'):
+    if analyze_bpm_option == 'b' or not analyze_bpm_option or (analyze_bpm_option == 'c' and repitch_keys != 'n'):
         try:
             bpm = return_bpm(tags_obj)
         except e:
