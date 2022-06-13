@@ -1,2 +1,3 @@
-backup/
-tagging_output/
+*/*
+*.mp3
+*.flac
