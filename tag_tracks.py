@@ -317,8 +317,6 @@ def write_bpm(f,k,t):
         return f
     #elif f is flac tag object
     elif isinstance(f,FLAC):
-        #print('tagging flac')
-        #print(f, ' ',k, ' ',t)
         f[t] = k
         return f
 
@@ -339,7 +337,6 @@ def write_repitched_camelot_key(f,k,t):
         #print(f, ' ',k, ' ',t)
         f[t] = k
         return f
-
 #-----
 
 #setup interview
@@ -661,8 +658,6 @@ for file in track_list:
         print(format_error(e))
         error_dict[file] = e
         continue
-    
-
 else:
     print(format_conf('\nTagging complete. ')+format_val(tagged_count)+format_conf(' tagged files can be found in ./'+destdir+'.\n'))
     if len(error_dict) != 0:
