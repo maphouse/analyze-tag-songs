@@ -139,10 +139,11 @@ def find_existing_keytags(f: 'mutagen.ID3/FLAC'):
     #elif f[-3:] == 'mp3':
     #    tags_obj = ID3(f)
     #    possible_keytags = ['TKEY','TKE','TXXX:initialkey','TXXX:KEY']
+    #print('f ',f)
     if isinstance(f, FLAC):
         possible_keytags = ['key','initialkey']
     elif isinstance(f, ID3):
-        possible_keytags = ['TKEY','TKE','TXXX:initialkey','TXXX:KEY']
+        possible_keytags = ['TKEY','TKE','TXXX:initialkey','TXXX:KEY','TXXX:key']
         
     while True:
         for i,keytag in enumerate(possible_keytags):
@@ -528,7 +529,7 @@ for file in track_list:
     if analyze_bpm_option == 'b' or not analyze_bpm_option:
         try:
             bpm = return_bpm(tags_obj)
-        except e:
+        except Exception as e:
             print('No BPM found on file')
             bpm = analyze_bpm(file)
             if bpm != False:
