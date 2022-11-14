@@ -3,6 +3,9 @@ import os
 import shutil
 import ffmpeg
 import keyfinder
+import subprocess
+from shlex import join
+from math import trunc
 from mutagen.id3 import ID3
 from mutagen.id3 import TKEY
 from mutagen.id3 import TKE
@@ -10,7 +13,7 @@ from mutagen.id3 import TXXX
 from mutagen.id3 import TBPM
 from mutagen.id3 import COMM
 from mutagen.flac import FLAC
-from extract_bpm import get_file_bpm
+#from extract_bpm import get_file_bpm
 
 #colors for command line tool readability
 
@@ -197,8 +200,12 @@ def analyze_bpm(f):
     else:
         pass
     try:
-        bpm = get_file_bpm(converted)
-        bpm = str(round(bpm))
+        #using Popen (from subprocess) and join (from shlex)
+        aubio_shell_command = subprocess.Popen(join(['aubio','tempo',converted]), stdout=subprocess.PIPE, shell=True)
+        bpm = float(''.join(c for c in str(aubio_shell_command.communicate()[0]) if (c.isdigit() or c == '.')))
+        #bpm = get_file_bpm(converted)
+        print("BPM detected: ",bpm)
+        bpm = str(trunc(bpm))
     except Exception as e:
         print(format_error(e))
         print('bpm analysis encountered an error. Skipping analysis for '+f)
@@ -377,7 +384,7 @@ for file in track_list:
             continue
     
     #make sure to not back up a file that has already been backed up during conversion
-    if '.'.join(file.split('.')[:-1]) not in backed_up_list and ((keyscan_option != 'd') or (tag_camelot != 'n') or (tag_playlist != 'n') or (analyze_bpm_option != 'c') or (repitch_keys != 'n')):
+    if '.'.join(file.split('.')[:-1]) not in backed_up_list and ((keyscan_option != 'd') or (tag_camelot != 'n') or (tag_playlist != 'n') or (analyze_bpm_option != 'c')):
         backup(file)
 
     if keyscan_option == 'a':
