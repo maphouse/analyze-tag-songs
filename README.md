@@ -1,8 +1,10 @@
 ## Overview
 
-This command line tool scans audio files by musical key and BPM and tags them accordingly. The script was created to provide a semi-automated to automated solution for preparing tracks for digital DJ mixes.
+This command line tool scans audio files by **musical key** and **BPM** and tags them accordingly. The script was created to provide a semi-automated to automated solution for preparing tracks for digital DJ mixes.
 
-The script will back up your files to a backup folder and output new tagged versions to an output folder. You can choose to batch overwrite any existing tags in these files, or proceed on a case by case basis.
+The script will back up your files to a backup folder and output new tagged versions to an output folder. It will ask you whether to batch overwrite any existing tags in these files, or to proceed on a case by case basis.
+
+The script will detect and handle MP3, FLAC, M4A and WAV files.
 
 ## Requirements
 
