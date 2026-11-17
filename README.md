@@ -11,7 +11,7 @@ The script will detect and handle MP3, FLAC, M4A and WAV files.
 - [keyfinder](https://pypi.org/project/keyfinder/)
 - [mutagen](https://pypi.org/project/mutagen/)
 - [ffmpeg-python](https://pypi.org/project/ffmpeg-python/)
-- [ffmpeg](https://pypi.org/project/ffmpeg/)
+- the `ffmpeg` and `aubio` command line tools on your PATH (on Ubuntu: `apt install ffmpeg aubio-tools`)
 
 see *requirements.txt* for details
 
@@ -19,9 +19,14 @@ see *requirements.txt* for details
 
 to run the tool, simply have the required packages installed and have the music files you want to tag located in the same directory as *tag_tracks.py*. Then run the script (**`python tag_tracks.py`**)
 
+For unattended runs (e.g. from a download pipeline), **`python tag_tracks.py --defaults`** answers every question with its default: only files missing a key or BPM get analyzed, and existing values are left alone.
+
+## Crash handling
+
+Some mp3s contain a corrupt frame that makes keyfinder's built-in decoder abort, which used to kill the whole run with `Segmentation fault (core dumped)` (see [keyfinder-py#2](https://github.com/EvanPurkhiser/keyfinder-py/issues/2)). The script now decodes each track once with the ffmpeg CLI, which skips bad frames, and runs keyfinder and aubio on that temporary WAV. keyfinder also runs in a child process, so any remaining crash only fails that one file and is listed in the error summary at the end.
+
 ## Possible improvements
 
 I wouldn't mind help with the following:
 
 - tagging WAV files directly (see issue https://github.com/quodlibet/mutagen/issues/545)
-- analyze BPM for mp3 and flac files (currently there are issues with *aubio* extracting BPM from files that are not in .wav format such as mp3, flac, etc.) since they are missing a *RIFF header*... (see possibly related issue https://github.com/aubio/aubio/issues/111)
